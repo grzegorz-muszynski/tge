@@ -1,9 +1,29 @@
 const xlsx = require('xlsx');
 const puppeteer = require('puppeteer-extra');
+const moment = require('moment');
 const StealthPlugin = require('puppeteer-extra-plugin-stealth');
 puppeteer.use(StealthPlugin());
 
+async function generateDates(startDate, endDate) {
+    let dates = [];
+    let currentDate = moment(startDate, 'DD-MM-YYYY');
+    let end = moment(endDate, 'DD-MM-YYYY');
+
+    while (currentDate <= end) {
+        dates.push(currentDate.format('DD-MM-YYYY'));
+        currentDate = currentDate.add(1, 'days');
+    }
+
+    return dates;
+}
+
 (async () => {
+    const startDate = '12-08-2024';
+    const endDate = '21-08-2024';
+    const dates = await generateDates(startDate, endDate);
+
+    console.log(dates);
+
     const browser = await puppeteer.launch({ headless: true });
     const page = await browser.newPage();
     await page.goto('https://tge.pl/energia-elektryczna-rdn?dateShow=18-07-2024&dateAction=prev', { waitUntil: 'networkidle2' });
