@@ -18,43 +18,48 @@ async function generateDates(startDate, endDate) {
 }
 
 (async () => {
-    const startDate = '12-08-2024';
+    // Poniżej, w cudzysłowie należy podać daty dla których chcemy pobrać dane. Ważne aby były w formacie DD-MM-YYYY jak poniżej
+    const startDate = '28-06-2024';
     const endDate = '21-08-2024';
-    const dates = await generateDates(startDate, endDate);
 
-    console.log(dates);
+    const dates = await generateDates(startDate, endDate);
+    // Tworzenie nowego excela
+    const wb = xlsx.utils.book_new();
 
     const browser = await puppeteer.launch({ headless: true });
     const page = await browser.newPage();
-    await page.goto('https://tge.pl/energia-elektryczna-rdn?dateShow=18-07-2024&dateAction=prev', { waitUntil: 'networkidle2' });
 
-    // waiting for the table to load
-    // await page.waitForSelector('.table');
-    await page.waitForSelector('.footable.table.table-hover.table-padding');
+    // const workbook = new ExcelJS.Workbook();
 
-    // Pobierz dane z tabeli
-    const tableData = await page.evaluate(() => {
-        // Użyj rzeczywistego selektora tabeli
-        const table = document.querySelector('.footable.table.table-hover.table-padding'); 
-        const rows = Array.from(table.querySelectorAll('tr'));
-        return rows.map(row => {
-            const cells = Array.from(row.querySelectorAll('td, th'));
-            return cells.map(cell => cell.innerText.trim());
+
+    // Tworzenie arkusza dla każdej daty
+    for (const date of dates) {
+        // otwieranie strony
+        await page.goto('https://tge.pl/energia-elektryczna-rdn?dateShow=' + date + '&dateAction=prev', { waitUntil: 'networkidle2' });
+
+        // czekanie na załadowanie tabeli
+        await page.waitForSelector('.footable.table.table-hover.table-padding');
+
+        // Pobieranie danych z tabeli
+        const tableData = await page.evaluate(() => {
+            const table = document.querySelector('.footable.table.table-hover.table-padding'); 
+            const rows = Array.from(table.querySelectorAll('tr'));
+            return rows.map(row => {
+                const cells = Array.from(row.querySelectorAll('td, th'));
+                return cells.map(cell => cell.innerText.trim());
+            });
         });
-    });
 
-    // Zakończenie działania przeglądarki
+        const ws = xlsx.utils.aoa_to_sheet(tableData);
+        
+        // Dodawanie arkuszu do excela
+        xlsx.utils.book_append_sheet(wb, ws, date);
+    }
+
+    // wyłączenie przeglądarki
     await browser.close();
 
-    // Tworzenie nowego skoroszytu Excel
-    const wb = xlsx.utils.book_new();
-    const ws = xlsx.utils.aoa_to_sheet(tableData);
-
-    // Dodaj arkusz do skoroszytu
-    xlsx.utils.book_append_sheet(wb, ws, 'Tabela');
-
-    // Zapisz plik Excel
+    // Zapisywanie excela
     xlsx.writeFile(wb, 'tabela.xlsx');
-
     console.log('Plik Excel został zapisany jako tabela.xlsx');
 })();
