@@ -13,7 +13,8 @@ puppeteer.use(StealthPlugin());
 
     // Pobierz dane z tabeli
     const tableData = await page.evaluate(() => {
-        const table = document.querySelector('.table'); // Użyj rzeczywistego selektora tabeli
+        // Użyj rzeczywistego selektora tabeli
+        const table = document.querySelector('.footable.table.table-hover.table-padding'); 
         const rows = Array.from(table.querySelectorAll('tr'));
         return rows.map(row => {
             const cells = Array.from(row.querySelectorAll('td, th'));
