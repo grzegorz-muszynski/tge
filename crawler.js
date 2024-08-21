@@ -6,10 +6,11 @@ puppeteer.use(StealthPlugin());
 (async () => {
     const browser = await puppeteer.launch({ headless: true });
     const page = await browser.newPage();
-    await page.goto('https://tge.pl/energia-elektryczna-rdn', { waitUntil: 'networkidle2' });
+    await page.goto('https://tge.pl/energia-elektryczna-rdn?dateShow=18-07-2024&dateAction=prev', { waitUntil: 'networkidle2' });
 
-    // Zaczekaj, aż tabela załaduje się na stronie
-    await page.waitForSelector('.table'); // Użyj rzeczywistego selektora tabeli
+    // waiting for the table to load
+    // await page.waitForSelector('.table');
+    await page.waitForSelector('.footable.table.table-hover.table-padding');
 
     // Pobierz dane z tabeli
     const tableData = await page.evaluate(() => {
