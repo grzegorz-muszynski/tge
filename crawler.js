@@ -1,13 +1,12 @@
-const puppeteer = require('puppeteer');
 const xlsx = require('xlsx');
+const puppeteer = require('puppeteer-extra');
+const StealthPlugin = require('puppeteer-extra-plugin-stealth');
+puppeteer.use(StealthPlugin());
 
 (async () => {
-    // Uruchomienie przeglądarki Puppeteer
     const browser = await puppeteer.launch({ headless: true });
     const page = await browser.newPage();
-
-    // Przejdź na stronę docelową
-    await page.goto('https://tge.pl/energia-elektryczna-rdn');
+    await page.goto('https://tge.pl/energia-elektryczna-rdn', { waitUntil: 'networkidle2' });
 
     // Zaczekaj, aż tabela załaduje się na stronie
     await page.waitForSelector('.table'); // Użyj rzeczywistego selektora tabeli
