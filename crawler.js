@@ -31,8 +31,9 @@ async function generateDates(startDate, endDate) {
     const browser = await puppeteer.launch({ headless: true });
     const page = await browser.newPage();
 
-    // const workbook = new ExcelJS.Workbook();
-
+    // do zbierania danych
+    let allDataTable = [];
+    let ws = null;
 
     // Tworzenie arkusza dla każdej daty
     for (const date of dates) {
@@ -52,11 +53,12 @@ async function generateDates(startDate, endDate) {
             });
         });
 
-        const ws = xlsx.utils.aoa_to_sheet(tableData);
+        allDataTable = allDataTable.concat(tableData);
+        ws = xlsx.utils.aoa_to_sheet(allDataTable);
         
-        // Dodawanie arkuszu do excela
-        xlsx.utils.book_append_sheet(wb, ws, date);
     }
+    // Dodawanie arkuszu do excela
+    xlsx.utils.book_append_sheet(wb, ws, 'Całość');
 
     // wyłączenie przeglądarki
     await browser.close();
