@@ -51,8 +51,8 @@ async function generateDates(startDate, endDate) {
             
             // Pominięcie dwóch pierwszych wierszy (nagłówki)
             const dataRows = rows.slice(2);
-            
-            return rows.map(row => {
+
+            return dataRows.map(row => {
                 const cells = Array.from(row.querySelectorAll('td, th'));
 
                 return cells.map(cell => cell.innerText.trim());
