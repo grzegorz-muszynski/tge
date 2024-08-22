@@ -47,15 +47,21 @@ async function generateDates(startDate, endDate) {
         const tableData = await page.evaluate(() => {
             const table = document.querySelector('.footable.table.table-hover.table-padding'); 
             const rows = Array.from(table.querySelectorAll('tr'));
+            
             return rows.map(row => {
                 const cells = Array.from(row.querySelectorAll('td, th'));
+
+                cells.map(row => [date, ...row]);
+
                 return cells.map(cell => cell.innerText.trim());
             });
         });
+        
+        // Dodanie daty do każdej komórki
+        // const tableDataWithDate = tableData.map(row => [date, ...row]);
 
         allDataTable = allDataTable.concat(tableData);
         ws = xlsx.utils.aoa_to_sheet(allDataTable);
-        
     }
     // Dodawanie arkuszu do excela
     xlsx.utils.book_append_sheet(wb, ws, 'Całość');
