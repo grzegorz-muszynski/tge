@@ -18,9 +18,11 @@ async function generateDates(startDate, endDate) {
 }
 
 (async () => {
-    // Poniżej, w cudzysłowie należy podać daty dla których chcemy pobrać dane. Ważne aby były w formacie DD-MM-YYYY jak poniżej
-    const startDate = '28-06-2024';
-    const endDate = '21-08-2024';
+    // Poniżej, w cudzysłowie należy wpisać daty dla których chcemy pobrać dane. Ważne aby były w formacie DD-MM-YYYY jak poniżej, np.:
+    // const startDate = '27-06-2024';
+    // const endDate = '21-08-2024';
+    const startDate = '29-07-2024';
+    const endDate = '02-08-2024';
 
     const dates = await generateDates(startDate, endDate);
     // Tworzenie nowego excela
