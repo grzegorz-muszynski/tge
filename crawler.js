@@ -48,11 +48,12 @@ async function generateDates(startDate, endDate) {
             const table = document.querySelector('.footable.table.table-hover.table-padding'); 
             const rows = Array.from(table.querySelectorAll('tr'));
             
+            
+            // Pominięcie dwóch pierwszych wierszy (nagłówki)
+            const dataRows = rows.slice(2);
+            
             return rows.map(row => {
                 const cells = Array.from(row.querySelectorAll('td, th'));
-
-                console.log('cells', cells);
-                console.log('row', row);
 
                 return cells.map(cell => cell.innerText.trim());
             });
