@@ -51,16 +51,17 @@ async function generateDates(startDate, endDate) {
             return rows.map(row => {
                 const cells = Array.from(row.querySelectorAll('td, th'));
 
-                cells.map(row => [date, ...row]);
+                console.log('cells', cells);
+                console.log('row', row);
 
                 return cells.map(cell => cell.innerText.trim());
             });
         });
         
-        // Dodanie daty do każdej komórki
-        // const tableDataWithDate = tableData.map(row => [date, ...row]);
+        // dodawanie daty do każdego wiersza
+        const tableDataWithDate = tableData.map(row => [date, ...row]);
 
-        allDataTable = allDataTable.concat(tableData);
+        allDataTable = allDataTable.concat(tableDataWithDate);
         ws = xlsx.utils.aoa_to_sheet(allDataTable);
     }
     // Dodawanie arkuszu do excela
