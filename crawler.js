@@ -77,12 +77,13 @@ function calculateColumnWidths(data) {
     // Dodawanie pustych komórek w pierwszym wierszu
     allDataTable[0].splice(3, 0, ''); 
     allDataTable[0].splice(5, 0, ''); 
+    allDataTable[0].splice(8, 0, ''); 
     
     ws = xlsx.utils.aoa_to_sheet(allDataTable);
     
+    // Wyliczanie szerokości kolumn
     const colWidths = calculateColumnWidths(allDataTable);
     ws['!cols'] = colWidths;
-    
 
     // Dodawanie arkuszu do excela
     xlsx.utils.book_append_sheet(wb, ws, 'Całość');
