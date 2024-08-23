@@ -48,21 +48,20 @@ async function generateDates(startDate, endDate) {
         const tableData = await page.evaluate(() => {
             const table = document.querySelector('.footable.table.table-hover.table-padding'); 
             const allRows = Array.from(table.querySelectorAll('tr'));
-            
-            
-            // Pominięcie dwóch pierwszych wierszy (nagłówki) przy kolejnych iteracjach
-            const dataRows = isFirstIteration ? tableData : tableData.slice(2, -3);
-            isFirstIteration = false;
 
-            return dataRows.map(row => {
+            return allRows.map(row => {
                 const cells = Array.from(row.querySelectorAll('td, th'));
 
                 return cells.map(cell => cell.innerText.trim());
             });
         });
+
+        // Pominięcie dwóch pierwszych wierszy (z nagłówkami) przy kolejnych iteracjach
+        const dataRows = isFirstIteration ? tableData.slice(0, -3) : tableData.slice(2, -3);
+        isFirstIteration = false;
         
         // dodawanie daty do każdego wiersza
-        const tableDataWithDate = tableData.map(row => [date, ...row]);
+        const tableDataWithDate = dataRows.map(row => [date, ...row]);
 
         allDataTable = allDataTable.concat(tableDataWithDate);
         ws = xlsx.utils.aoa_to_sheet(allDataTable);
