@@ -73,16 +73,33 @@ function calculateColumnWidths(data) {
 
         allDataTable = allDataTable.concat(tableDataWithDate);
     }
-    
+
     // Dodawanie pustych komórek w pierwszym wierszu
     allDataTable[0].splice(3, 0, ''); 
     allDataTable[0].splice(5, 0, ''); 
-    allDataTable[0].splice(8, 0, ''); 
+    allDataTable[0].splice(8, 0, '');
+
+    // Usunięcie zbędnych dat
+    allDataTable[0][0] = '';
+    allDataTable[1][0] = '';
     
     ws = xlsx.utils.aoa_to_sheet(allDataTable);
     
     // Wyliczanie szerokości kolumn
-    const colWidths = calculateColumnWidths(allDataTable);
+    // const colWidths = calculateColumnWidths(allDataTable);
+
+    // Ręczne ustawienie szerokości kolumn
+    const colWidths = [
+        { wch: 12},
+        { wch: 7},
+        { wch: 16},
+        { wch: 16},
+        { wch: 16},
+        { wch: 16},
+        { wch: 16},
+        { wch: 16}
+    ]
+
     ws['!cols'] = colWidths;
 
     // Dodawanie arkuszu do excela
