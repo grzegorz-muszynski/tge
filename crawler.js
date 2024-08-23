@@ -72,11 +72,17 @@ function calculateColumnWidths(data) {
         const tableDataWithDate = dataRows.map(row => [date, ...row]);
 
         allDataTable = allDataTable.concat(tableDataWithDate);
-        ws = xlsx.utils.aoa_to_sheet(allDataTable);
     }
-
+    
+    // Dodawanie pustych komórek w pierwszym wierszu
+    allDataTable[0].splice(3, 0, ''); 
+    allDataTable[0].splice(5, 0, ''); 
+    
+    ws = xlsx.utils.aoa_to_sheet(allDataTable);
+    
     const colWidths = calculateColumnWidths(allDataTable);
     ws['!cols'] = colWidths;
+    
 
     // Dodawanie arkuszu do excela
     xlsx.utils.book_append_sheet(wb, ws, 'Całość');
