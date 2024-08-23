@@ -17,11 +17,19 @@ async function generateDates(startDate, endDate) {
     return dates;
 }
 
+// Funkcja wyliczająca szerokość kolumn w excelu
+function calculateColumnWidths(data) {
+    const colWidths = data[0].map((_, colIndex) => {
+        return Math.max(...data.map(row => (row[colIndex] ? row[colIndex].toString().length : 0)));
+    });
+    return colWidths.map(width => ({ wch: width }));
+}
+
 (async () => {
     // Poniżej, w cudzysłowie należy wpisać daty dla których chcemy pobrać dane. Ważne aby były w formacie DD-MM-YYYY jak poniżej, np.:
     // const startDate = '27-06-2024';
     // const endDate = '21-08-2024';
-    const startDate = '29-07-2024';
+    const startDate = '01-08-2024';
     const endDate = '02-08-2024';
 
     const dates = await generateDates(startDate, endDate);
@@ -66,6 +74,10 @@ async function generateDates(startDate, endDate) {
         allDataTable = allDataTable.concat(tableDataWithDate);
         ws = xlsx.utils.aoa_to_sheet(allDataTable);
     }
+
+    const colWidths = calculateColumnWidths(allDataTable);
+    ws['!cols'] = colWidths;
+
     // Dodawanie arkuszu do excela
     xlsx.utils.book_append_sheet(wb, ws, 'Całość');
 
