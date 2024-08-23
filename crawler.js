@@ -34,6 +34,7 @@ async function generateDates(startDate, endDate) {
     // do zbierania danych
     let allDataTable = [];
     let ws = null;
+    let isFirstIteration = true;
 
     // Tworzenie arkusza dla każdej daty
     for (const date of dates) {
@@ -49,8 +50,9 @@ async function generateDates(startDate, endDate) {
             const allRows = Array.from(table.querySelectorAll('tr'));
             
             
-            // Pominięcie dwóch pierwszych wierszy (nagłówki)
-            const dataRows = allRows.slice(2, -3);
+            // Pominięcie dwóch pierwszych wierszy (nagłówki) przy kolejnych iteracjach
+            const dataRows = isFirstIteration ? tableData : tableData.slice(2, -3);
+            isFirstIteration = false;
 
             return dataRows.map(row => {
                 const cells = Array.from(row.querySelectorAll('td, th'));
