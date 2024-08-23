@@ -46,11 +46,11 @@ async function generateDates(startDate, endDate) {
         // Pobieranie danych z tabeli
         const tableData = await page.evaluate(() => {
             const table = document.querySelector('.footable.table.table-hover.table-padding'); 
-            const rows = Array.from(table.querySelectorAll('tr'));
+            const allRows = Array.from(table.querySelectorAll('tr'));
             
             
             // Pominięcie dwóch pierwszych wierszy (nagłówki)
-            const dataRows = rows.slice(2);
+            const dataRows = allRows.slice(2, -3);
 
             return dataRows.map(row => {
                 const cells = Array.from(row.querySelectorAll('td, th'));
