@@ -1,4 +1,6 @@
 const xlsx = require('xlsx');
+const xlsxStyle = require('xlsx-style');
+
 const puppeteer = require('puppeteer-extra');
 const moment = require('moment');
 const StealthPlugin = require('puppeteer-extra-plugin-stealth');
@@ -160,6 +162,7 @@ function mergeTablesSideBySide(table1, table2) {
     await browser.close();
 
     // Zapisywanie excela
-    xlsx.writeFile(wb, 'tabela.xlsx');
+    // xlsx.writeFile(wb, 'tabela.xlsx');
+    xlsxStyle.writeFile(wb, 'tabela.xlsx');
     console.log('Plik Excel został zapisany jako tabela.xlsx');
 })();
