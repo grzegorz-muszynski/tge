@@ -57,7 +57,7 @@ function mergeTablesSideBySide(table1, table2) {
     let allDataTable = [];
     let ws = null;
     let isFirstIteration = true;
-    let isItFirstDate = 0;
+    let dateNumber = 0;
 
     // Pokazywanie komunikatów z przeglądarki w konsoli
     page.on('console', msg => console.log('PAGE LOG:', msg.text()));
@@ -72,12 +72,12 @@ function mergeTablesSideBySide(table1, table2) {
         
         
         // Pobieranie danych z tabeli
-        const tableData = await page.evaluate((isItFirstDate) => {
+        const tableData = await page.evaluate((dateNumber) => {
             const table = document.querySelector('.footable.table.table-hover.table-padding'); 
             const allRows = Array.from(table.querySelectorAll('tr'));
             
             return allRows.map(row => {
-                if (isItFirstDate < 1) {
+                if (dateNumber < 1) {
                     cells = Array.from(row.querySelectorAll('td, th')).slice(0, 2);
                 } else {
                     cells = Array.from(row.querySelectorAll('td, th')).slice(1, 2);
@@ -85,19 +85,39 @@ function mergeTablesSideBySide(table1, table2) {
                 
                 return cells.map(cell => cell.innerText.trim());
             });
-        }, isItFirstDate);
-        isItFirstDate = isItFirstDate + 1;
+        }, dateNumber);
         
-
+        
         // Pominięcie dwóch pierwszych wierszy (z nagłówkami) przy kolejnych iteracjach
-        const dataRows = isFirstIteration ? tableData.slice(0, -3) : tableData.slice(2, -3);
-        isFirstIteration = false;
+        // const dataRows = isFirstIteration ? tableData.slice(0, -3) : tableData.slice(2, -3);
+        const dataRows = tableData.slice(2, -3);
         
-        // dodawanie daty do każdego wiersza
-        const tableDataWithDate = dataRows.map(row => [date, ...row]);
+        // dodawanie daty do każdej kolumny z wyjątkiem pierwszej
+        if (isFirstIteration) {
+            dataRows.unshift(['', date]);
+        } else {   
+            dataRows.unshift([date]);
+        }
 
+        // dodawanie nagłówków w dwóch pierwszych wierszach
+        if (dateNumber === 1) {
+            dataRows.splice(0, 0, ['FIXING I']);
+            dataRows.splice(0, 0, ['Kurs (PLN/MWh)']);
+        } else {
+            dataRows.splice(0, 0, ['']);
+            dataRows.splice(0, 0, ['']);
+        }
+        
+        const tableDataWithDate = dataRows; 
+        
+        // console.log(date);
+        // console.log(dataRows);
+        console.log(tableDataWithDate);
+        
         // allDataTable = allDataTable.concat(tableDataWithDate);
         allDataTable = mergeTablesSideBySide(allDataTable, tableDataWithDate);
+        isFirstIteration = false;
+        dateNumber = dateNumber + 1;
     }
 
     // Dodawanie pustych komórek w pierwszym wierszu
@@ -110,6 +130,11 @@ function mergeTablesSideBySide(table1, table2) {
     // allDataTable[1][0] = '';
     
     ws = xlsx.utils.aoa_to_sheet(allDataTable);
+
+    // Step 4: Apply bold formatting to specific cells
+    const boldStyle = { font: { bold: true } };
+    ws['B2'].s = boldStyle;
+    ws['B1'].s = boldStyle;
     
     // Wyliczanie szerokości kolumn
     // const colWidths = calculateColumnWidths(allDataTable);
@@ -117,7 +142,7 @@ function mergeTablesSideBySide(table1, table2) {
     // Ręczne ustawienie szerokości kolumn
     const colWidths = [
         { wch: 12},
-        { wch: 7},
+        { wch: 16},
         { wch: 16},
         { wch: 16},
         { wch: 16},
