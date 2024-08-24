@@ -112,24 +112,11 @@ function mergeTablesSideBySide(table1, table2) {
         
         const tableDataWithDate = dataRows; 
         
-        // console.log(date);
-        // console.log(dataRows);
-        console.log(tableDataWithDate);
-        
         // allDataTable = allDataTable.concat(tableDataWithDate);
         allDataTable = mergeTablesSideBySide(allDataTable, tableDataWithDate);
         isFirstIteration = false;
         dateNumber = dateNumber + 1;
     }
-
-    // Dodawanie pustych komórek w pierwszym wierszu
-    // allDataTable[0].splice(3, 0, ''); 
-    // allDataTable[0].splice(5, 0, ''); 
-    // allDataTable[0].splice(8, 0, '');
-
-    // Usunięcie zbędnych dat
-    // allDataTable[0][0] = '';
-    // allDataTable[1][0] = '';
     
     ws = xlsx.utils.aoa_to_sheet(allDataTable);
 
