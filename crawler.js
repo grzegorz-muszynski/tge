@@ -25,6 +25,20 @@ function calculateColumnWidths(data) {
     return colWidths.map(width => ({ wch: width }));
 }
 
+function mergeTablesSideBySide(table1, table2) {
+    const maxRows = Math.max(table1.length, table2.length);
+    const mergedTable = [];
+
+    for (let i = 0; i < maxRows; i++) {
+        const row1 = table1[i] || [];
+        const row2 = table2[i] || [];
+        const mergedRow = row1.concat(row2);
+        mergedTable.push(mergedRow);
+    }
+
+    return mergedTable;
+}
+
 (async () => {
     // Poniżej, w cudzysłowie należy wpisać daty dla których chcemy pobrać dane. Ważne aby były w formacie DD-MM-YYYY jak poniżej, np.:
     // const startDate = '27-06-2024';
@@ -63,7 +77,6 @@ function calculateColumnWidths(data) {
             const allRows = Array.from(table.querySelectorAll('tr'));
             
             return allRows.map(row => {
-                console.log(isItFirstDate);
                 if (isItFirstDate < 1) {
                     cells = Array.from(row.querySelectorAll('td, th')).slice(0, 2);
                 } else {
@@ -83,7 +96,8 @@ function calculateColumnWidths(data) {
         // dodawanie daty do każdego wiersza
         const tableDataWithDate = dataRows.map(row => [date, ...row]);
 
-        allDataTable = allDataTable.concat(tableDataWithDate);
+        // allDataTable = allDataTable.concat(tableDataWithDate);
+        allDataTable = mergeTablesSideBySide(allDataTable, tableDataWithDate);
     }
 
     // Dodawanie pustych komórek w pierwszym wierszu
