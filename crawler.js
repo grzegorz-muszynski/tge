@@ -29,7 +29,7 @@ function calculateColumnWidths(data) {
     // Poniżej, w cudzysłowie należy wpisać daty dla których chcemy pobrać dane. Ważne aby były w formacie DD-MM-YYYY jak poniżej, np.:
     // const startDate = '27-06-2024';
     // const endDate = '21-08-2024';
-    const startDate = '01-08-2024';
+    const startDate = '28-07-2024';
     const endDate = '02-08-2024';
 
     const dates = await generateDates(startDate, endDate);
@@ -43,26 +43,38 @@ function calculateColumnWidths(data) {
     let allDataTable = [];
     let ws = null;
     let isFirstIteration = true;
+    let isItFirstDate = 0;
 
+    // Pokazywanie komunikatów z przeglądarki w konsoli
+    page.on('console', msg => console.log('PAGE LOG:', msg.text()));
+
+    
     // Tworzenie arkusza dla każdej daty
     for (const date of dates) {
         // otwieranie strony
         await page.goto('https://tge.pl/energia-elektryczna-rdn?dateShow=' + date + '&dateAction=prev', { waitUntil: 'networkidle2' });
-
         // czekanie na załadowanie tabeli
         await page.waitForSelector('.footable.table.table-hover.table-padding');
-
+        
+        
         // Pobieranie danych z tabeli
-        const tableData = await page.evaluate(() => {
+        const tableData = await page.evaluate((isItFirstDate) => {
             const table = document.querySelector('.footable.table.table-hover.table-padding'); 
             const allRows = Array.from(table.querySelectorAll('tr'));
-
+            
             return allRows.map(row => {
-                const cells = Array.from(row.querySelectorAll('td, th'));
-
+                console.log(isItFirstDate);
+                if (isItFirstDate < 1) {
+                    cells = Array.from(row.querySelectorAll('td, th')).slice(0, 2);
+                } else {
+                    cells = Array.from(row.querySelectorAll('td, th')).slice(1, 2);
+                }
+                
                 return cells.map(cell => cell.innerText.trim());
             });
-        });
+        }, isItFirstDate);
+        isItFirstDate = isItFirstDate + 1;
+        
 
         // Pominięcie dwóch pierwszych wierszy (z nagłówkami) przy kolejnych iteracjach
         const dataRows = isFirstIteration ? tableData.slice(0, -3) : tableData.slice(2, -3);
@@ -75,13 +87,13 @@ function calculateColumnWidths(data) {
     }
 
     // Dodawanie pustych komórek w pierwszym wierszu
-    allDataTable[0].splice(3, 0, ''); 
-    allDataTable[0].splice(5, 0, ''); 
-    allDataTable[0].splice(8, 0, '');
+    // allDataTable[0].splice(3, 0, ''); 
+    // allDataTable[0].splice(5, 0, ''); 
+    // allDataTable[0].splice(8, 0, '');
 
     // Usunięcie zbędnych dat
-    allDataTable[0][0] = '';
-    allDataTable[1][0] = '';
+    // allDataTable[0][0] = '';
+    // allDataTable[1][0] = '';
     
     ws = xlsx.utils.aoa_to_sheet(allDataTable);
     
