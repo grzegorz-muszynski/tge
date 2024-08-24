@@ -124,6 +124,11 @@ function mergeTablesSideBySide(table1, table2) {
     const boldStyle = { font: { bold: true } };
     ws['B2'].s = boldStyle;
     ws['B1'].s = boldStyle;
+
+    for (let i = 4; i < 28; i++) {
+        ws['A' + i].s = boldStyle;
+    }
+
     
     // Wyliczanie szerokości kolumn
     // const colWidths = calculateColumnWidths(allDataTable);
