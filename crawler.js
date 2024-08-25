@@ -45,8 +45,8 @@ function mergeTablesSideBySide(table1, table2) {
     // Poniżej, w cudzysłowie należy wpisać daty dla których chcemy pobrać dane. Ważne aby były w formacie DD-MM-YYYY jak poniżej, np.:
     // const startDate = '27-06-2024';
     // const endDate = '21-08-2024';
-    const startDate = '28-07-2024';
-    const endDate = '02-08-2024';
+    const startDate = '26-06-2024';
+    const endDate = '28-08-2024';
 
     const dates = await generateDates(startDate, endDate);
     // Tworzenie nowego excela
@@ -62,9 +62,8 @@ function mergeTablesSideBySide(table1, table2) {
     let dateNumber = 0;
 
     // Pokazywanie komunikatów z przeglądarki w konsoli
-    page.on('console', msg => console.log('PAGE LOG:', msg.text()));
+    // page.on('console', msg => console.log('PAGE LOG:', msg.text()));
 
-    
     // Tworzenie arkusza dla każdej daty
     for (const date of dates) {
         // otwieranie strony
@@ -120,32 +119,61 @@ function mergeTablesSideBySide(table1, table2) {
     
     ws = xlsx.utils.aoa_to_sheet(allDataTable);
 
-    // Step 4: Apply bold formatting to specific cells
+    // Pogrubianie tekstu
     const boldStyle = { font: { bold: true } };
+
+    // Ręczne pogrubianie
     ws['B2'].s = boldStyle;
     ws['B1'].s = boldStyle;
 
+    // Pogrubianie godzin
     for (let i = 4; i < 28; i++) {
         ws['A' + i].s = boldStyle;
+    }
+    
+    // Pogrubianie dat
+    function numberToLetters(num) {
+        let letters = '';
+        while (num >= 0) {
+            letters = String.fromCharCode((num % 26) + 65) + letters;
+            num = Math.floor(num / 26) - 1;
+        }
+        return letters;
+    }
+    
+    const iterations = dates.length; // Set the number of iterations you need
+
+    for (let i = 1; i < iterations + 1; i++) {
+        ws[numberToLetters(i) + '3'].s = boldStyle;
     }
 
     
     // Wyliczanie szerokości kolumn
-    // const colWidths = calculateColumnWidths(allDataTable);
+    const colWidths = calculateColumnWidths(allDataTable);
 
     // Ręczne ustawienie szerokości kolumn
-    const colWidths = [
-        { wch: 12},
-        { wch: 16},
-        { wch: 16},
-        { wch: 16},
-        { wch: 16},
-        { wch: 16},
-        { wch: 16},
-        { wch: 16}
-    ]
+    // const colWidths = [
+    //     { wch: 12},
+    //     { wch: 16},
+    //     { wch: 16},
+    //     { wch: 16},
+    //     { wch: 16},
+    //     { wch: 16},
+    //     { wch: 16},
+    //     { wch: 16}
+    // ]
 
     ws['!cols'] = colWidths;
+
+    // Dorównanie do prawej strony komórek
+    const rightAlignStyle = { alignment: { horizontal: "right" } };
+    Object.keys(ws).forEach(cell => {
+        if (ws[cell].s) {
+            ws[cell].s = { ...ws[cell].s, ...rightAlignStyle };
+        } else {
+            ws[cell].s = rightAlignStyle;
+        }
+    });
 
     // Dodawanie arkuszu do excela
     xlsx.utils.book_append_sheet(wb, ws, 'Całość');
