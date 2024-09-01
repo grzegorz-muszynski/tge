@@ -42,7 +42,7 @@ function mergeTablesSideBySide(table1, table2) {
 }
 
 // Funkcja sprawdzająca dzisiejszy dzień i zwracająca datę 60 dni wcześniej - pierwszy dzień z danymi na stronie
-function getDate60DaysBefore() {
+function getDate59DaysBefore() {
     const currentDate = new Date();
     currentDate.setDate(currentDate.getDate() - 60);
 
@@ -52,7 +52,21 @@ function getDate60DaysBefore() {
 
     return `${day}.${month}.${year}`;
 }
-// console.log(getDate60DaysBefore());
+// console.log(getDate59DaysBefore());
+
+// Funkcja przerabiają datę zapisaną w stringu na datę z poprzedniego dnia
+function getPrevDay(date) {
+    const [day, month, year] = date.split('-').map(Number);
+    const nextDay = new Date(year, month - 1, day);
+    nextDay.setDate(nextDay.getDate() - 1);
+    
+    // Formatowanie z powrotem do stringów
+    const newDay = String(nextDay.getDate()).padStart(2, '0');
+    const newMonth = String(nextDay.getMonth() + 1).padStart(2, '0');
+    const newYear = nextDay.getFullYear();
+    
+    return `${newDay}-${newMonth}-${newYear}`;
+}
 
 // Funkcja przerabiają datę zapisaną w stringu na datę z kolejnego dnia
 function getNextDay(date) {
@@ -70,11 +84,13 @@ function getNextDay(date) {
 
 // Funkcja główna
 (async () => {
+    console.log('Rozpoczynam pobieranie danych z wybranych dat (proszę czekać):');
+
     // Poniżej, w cudzysłowie należy wpisać daty dla których chcemy pobrać dane. Ważne aby były w formacie DD-MM-YYYY jak poniżej, np.:
     // const startDate = '27-06-2024';
     // const endDate = '21-08-2024';
-    const startDate = '30-08-2024';
-    const endDate = '01-09-2024';
+    const startDate = '04-07-2024';
+    const endDate = '02-09-2024';
 
     const dates = await generateDates(startDate, endDate);
 
@@ -97,11 +113,14 @@ function getNextDay(date) {
 
     // Tworzenie arkusza dla każdej daty
     for (const date of dates) {
+    // for (let i = 0; i < dates.length - 1; i++) {
+    //     const date = dates[i];
+        const prevDate = getPrevDay(date);
+
         // otwieranie strony
-        await page.goto('https://tge.pl/energia-elektryczna-rdn?dateShow=' + date + '&dateAction=prev', { waitUntil: 'networkidle2' });
+        await page.goto('https://tge.pl/energia-elektryczna-rdn?dateShow=' + prevDate + '&dateAction=prev', { waitUntil: 'networkidle2' });
         // czekanie na załadowanie tabeli
         await page.waitForSelector('.footable.table.table-hover.table-padding');
-        
         
         // Pobieranie danych z tabeli
         const tableData = await page.evaluate((dateNumber) => {
@@ -125,12 +144,12 @@ function getNextDay(date) {
         const dataRows = tableData.slice(2, -3);
         
         // przerabianie daty o jeden dzień na przód i dodawanie w tej formie do każdej kolumny z wyjątkiem pierwszej (tej z godzinami)
-        const nextDayDate = getNextDay(date);
+        // const nextDayDate = getNextDay(date);
         if (isFirstIteration) {
-            dataRows.unshift(['', nextDayDate]);
+            dataRows.unshift(['', date]);
         } else {   
-            console.log(nextDayDate);
-            dataRows.unshift([nextDayDate]);
+            console.log(date);
+            dataRows.unshift([date]);
         }
 
         // dodawanie nagłówków w dwóch pierwszych wierszach
@@ -156,8 +175,8 @@ function getNextDay(date) {
     const boldStyle = { font: { bold: true } };
 
     // Ręczne pogrubianie
-    ws['B2'].s = boldStyle;
-    ws['B1'].s = boldStyle;
+    // ws['B2'].s = boldStyle;
+    // ws['B1'].s = boldStyle;
 
     // Pogrubianie godzin
     for (let i = 4; i < 28; i++) {
