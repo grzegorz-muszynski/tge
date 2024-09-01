@@ -83,40 +83,41 @@ function getNextDay(date) {
 }
 
 // Funkcja główna
-(async () => {
-    console.log('Rozpoczynam pobieranie danych z wybranych dat (proszę czekać):');
+(async () => {- 
+    console.log('Rozpoczynam pobieranie danych z wybranych dat:');
 
     // Poniżej, w cudzysłowie należy wpisać daty dla których chcemy pobrać dane. Ważne aby były w formacie DD-MM-YYYY jak poniżej, np.:
     // const startDate = '27-06-2024';
     // const endDate = '21-08-2024';
     const startDate = '04-07-2024';
-    const endDate = '02-09-2024';
+    const endDate = '07-07-2024';
 
     const dates = await generateDates(startDate, endDate);
-
+    
     // console.log('Pobieranie danych dla dat: ', dates);
-
+    
     // Tworzenie nowego excela
     const wb = xlsx.utils.book_new();
-
+    
     const browser = await puppeteer.launch({ headless: true });
     const page = await browser.newPage();
-
+    
     // do zbierania danych
     let allDataTable = [];
     let ws = null;
     let isFirstIteration = true;
     let dateNumber = 0;
-
+    
     // Pokazywanie komunikatów z przeglądarki w konsoli
     // page.on('console', msg => console.log('PAGE LOG:', msg.text()));
-
+    
     // Tworzenie arkusza dla każdej daty
     for (const date of dates) {
-    // for (let i = 0; i < dates.length - 1; i++) {
+        console.log(date);
+        // for (let i = 0; i < dates.length - 1; i++) {
     //     const date = dates[i];
         const prevDate = getPrevDay(date);
-
+        
         // otwieranie strony
         await page.goto('https://tge.pl/energia-elektryczna-rdn?dateShow=' + prevDate + '&dateAction=prev', { waitUntil: 'networkidle2' });
         // czekanie na załadowanie tabeli
@@ -148,12 +149,11 @@ function getNextDay(date) {
         if (isFirstIteration) {
             dataRows.unshift(['', date]);
         } else {   
-            console.log(date);
             dataRows.unshift([date]);
         }
 
         // dodawanie nagłówków w dwóch pierwszych wierszach
-        if (dateNumber === 1) {
+        if (dateNumber === 0) {
             dataRows.splice(0, 0, ['FIXING I']);
             dataRows.splice(0, 0, ['Kurs (PLN/MWh)']);
         } else {
@@ -171,15 +171,11 @@ function getNextDay(date) {
     
     ws = xlsx.utils.aoa_to_sheet(allDataTable);
 
-    // Pogrubianie tekstu
+    // Stylowanie
     const boldStyle = { font: { bold: true } };
-
-    // Ręczne pogrubianie
-    // ws['B2'].s = boldStyle;
-    // ws['B1'].s = boldStyle;
-
-    // Pogrubianie godzin
-    for (let i = 4; i < 28; i++) {
+    
+    // Pogrubianie tekstu w pierwszej kolumnie
+    for (let i = 1; i < 28; i++) {
         ws['A' + i].s = boldStyle;
     }
     
