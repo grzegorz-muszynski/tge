@@ -49,6 +49,12 @@ function mergeTablesSideBySide(table1, table2) {
     return mergedTable;
 }
 
+// Funkcja przerabiająca datę zapisaną w stringu w obiekt
+function parseDate(dateStr) {
+    const [day, month, year] = dateStr.split('-').map(Number);
+    return new Date(year, month - 1, day);
+}
+
 // Funkcja sprawdzająca dzisiejszy dzień i zwracająca datę 60 dni wcześniej - pierwszy dzień z danymi na stronie
 function getDate59DaysBefore() {
     const currentDate = new Date();
@@ -58,7 +64,7 @@ function getDate59DaysBefore() {
     const month = String(currentDate.getMonth() + 1).padStart(2, '0');
     const year = currentDate.getFullYear();
 
-    return `${day}.${month}.${year}`;
+    return `${day}-${month}-${year}`;
 }
 // console.log(getDate59DaysBefore());
 
@@ -244,12 +250,40 @@ async function makeExcel (startDate, endDate) {
 };
 
 const dateRegex = /^\d{2}-\d{2}-\d{4}$/;
+const earliestDate = getDate59DaysBefore();
 
-rl.question('Wprowadź do terminala datę początkową w formacie DD-MM-YYYY, np.: 01-01-2024. ', (startDate) => {
-    rl.question('Wprowadź datę końcową w formacie DD-MM-YYYY: ', (endDate) => {
-        
-        console.log(`Wprowadzona data początkowa: ${startDate}`);
-        console.log(`Wprowadzona data końcowa: ${endDate}`);
+function askDate(question, callback) {
+    rl.question(question, (date) => {
+        if (dateRegex.test(date)) {
+            callback(date);
+        } else {
+            console.log('Niepoprawny format daty. Spróbuj ponownie.');
+            askDate(question, callback);
+        }
+    });
+}
+
+askDate(`Wprowadź do terminala datę początkową w formacie DD-MM-YYYY, np.: 01-01-2024. Nie może być wcześniejsza niż ${earliestDate}. `, (startDate) => {
+    const parsedStartDate = parseDate(startDate);
+    const parsedEarliestDate = parseDate(earliestDate);
+
+    if (parsedStartDate < parsedEarliestDate) {
+        console.log(`Podana data jest wcześniejsza niż ${earliestDate}: Uruchom program jeszcze raz.`);
+        rl.close();
+        return;
+    }
+
+    askDate('Wprowadź datę końcową w formacie DD-MM-YYYY: ', (endDate) => {
+        const parsedEndDate = parseDate(endDate);
+
+        if (parsedStartDate > parsedEndDate) {
+            console.log('Podana data końcowa jest w kalendarzu przed datą początkową. Uruchom program jeszcze raz.');
+            rl.close();
+            return;
+        }
+
+        // console.log(`Wprowadzona data początkowa: ${startDate}`);
+        // console.log(`Wprowadzona data końcowa: ${endDate}`);
         
         makeExcel(startDate, endDate);
 
