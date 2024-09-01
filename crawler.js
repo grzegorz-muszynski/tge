@@ -41,14 +41,45 @@ function mergeTablesSideBySide(table1, table2) {
     return mergedTable;
 }
 
+// Funkcja sprawdzająca dzisiejszy dzień i zwracająca datę 60 dni wcześniej - pierwszy dzień z danymi na stronie
+function getDate60DaysBefore() {
+    const currentDate = new Date();
+    currentDate.setDate(currentDate.getDate() - 60);
+
+    const day = String(currentDate.getDate()).padStart(2, '0');
+    const month = String(currentDate.getMonth() + 1).padStart(2, '0');
+    const year = currentDate.getFullYear();
+
+    return `${day}.${month}.${year}`;
+}
+// console.log(getDate60DaysBefore());
+
+// Funkcja przerabiają datę zapisaną w stringu na datę z kolejnego dnia
+function getNextDay(date) {
+    const [day, month, year] = date.split('-').map(Number);
+    const nextDay = new Date(year, month - 1, day);
+    nextDay.setDate(nextDay.getDate() + 1);
+    
+    // Formatowanie z powrotem do stringów
+    const newDay = String(nextDay.getDate()).padStart(2, '0');
+    const newMonth = String(nextDay.getMonth() + 1).padStart(2, '0');
+    const newYear = nextDay.getFullYear();
+    
+    return `${newDay}-${newMonth}-${newYear}`;
+}
+
+// Funkcja główna
 (async () => {
     // Poniżej, w cudzysłowie należy wpisać daty dla których chcemy pobrać dane. Ważne aby były w formacie DD-MM-YYYY jak poniżej, np.:
     // const startDate = '27-06-2024';
     // const endDate = '21-08-2024';
-    const startDate = '26-06-2024';
-    const endDate = '28-08-2024';
+    const startDate = '30-08-2024';
+    const endDate = '01-09-2024';
 
     const dates = await generateDates(startDate, endDate);
+
+    // console.log('Pobieranie danych dla dat: ', dates);
+
     // Tworzenie nowego excela
     const wb = xlsx.utils.book_new();
 
@@ -93,11 +124,13 @@ function mergeTablesSideBySide(table1, table2) {
         // const dataRows = isFirstIteration ? tableData.slice(0, -3) : tableData.slice(2, -3);
         const dataRows = tableData.slice(2, -3);
         
-        // dodawanie daty do każdej kolumny z wyjątkiem pierwszej
+        // przerabianie daty o jeden dzień na przód i dodawanie w tej formie do każdej kolumny z wyjątkiem pierwszej (tej z godzinami)
+        const nextDayDate = getNextDay(date);
         if (isFirstIteration) {
-            dataRows.unshift(['', date]);
+            dataRows.unshift(['', nextDayDate]);
         } else {   
-            dataRows.unshift([date]);
+            console.log(nextDayDate);
+            dataRows.unshift([nextDayDate]);
         }
 
         // dodawanie nagłówków w dwóch pierwszych wierszach
