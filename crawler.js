@@ -1,3 +1,5 @@
+const readline = require('readline');
+
 const xlsx = require('xlsx');
 const xlsxStyle = require('xlsx-style');
 
@@ -5,6 +7,12 @@ const puppeteer = require('puppeteer-extra');
 const moment = require('moment');
 const StealthPlugin = require('puppeteer-extra-plugin-stealth');
 puppeteer.use(StealthPlugin());
+
+// Prompts
+const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout
+});
 
 async function generateDates(startDate, endDate) {
     let dates = [];
@@ -83,14 +91,14 @@ function getNextDay(date) {
 }
 
 // Funkcja główna
-(async () => {- 
+async function makeExcel (startDate, endDate) {
     console.log('Rozpoczynam pobieranie danych z wybranych dat:');
 
     // Poniżej, w cudzysłowie należy wpisać daty dla których chcemy pobrać dane. Ważne aby były w formacie DD-MM-YYYY jak poniżej, np.:
     // const startDate = '27-06-2024';
     // const endDate = '21-08-2024';
-    const startDate = '04-07-2024';
-    const endDate = '07-07-2024';
+    // const startDate = '04-07-2024';
+    // const endDate = '07-07-2024';
 
     const dates = await generateDates(startDate, endDate);
     
@@ -233,4 +241,18 @@ function getNextDay(date) {
     // xlsx.writeFile(wb, 'tabela.xlsx');
     xlsxStyle.writeFile(wb, 'tabela.xlsx');
     console.log('Plik Excel został zapisany jako tabela.xlsx');
-})();
+};
+
+const dateRegex = /^\d{2}-\d{2}-\d{4}$/;
+
+rl.question('Wprowadź do terminala datę początkową w formacie DD-MM-YYYY, np.: 01-01-2024. ', (startDate) => {
+    rl.question('Wprowadź datę końcową w formacie DD-MM-YYYY: ', (endDate) => {
+        
+        console.log(`Wprowadzona data początkowa: ${startDate}`);
+        console.log(`Wprowadzona data końcowa: ${endDate}`);
+        
+        makeExcel(startDate, endDate);
+
+        rl.close();
+    });
+});
