@@ -22,8 +22,6 @@ async function makeExcel (startDate, endDate) {
     // Poniżej, w cudzysłowie należy wpisać daty dla których chcemy pobrać dane. Ważne aby były w formacie DD-MM-YYYY jak poniżej, np.:
     // const startDate = '27-06-2024';
     // const endDate = '21-08-2024';
-    // const startDate = '04-07-2024';
-    // const endDate = '07-07-2024';
 
     const dates = await generateDates(startDate, endDate);
     
