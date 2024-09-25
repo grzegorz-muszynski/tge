@@ -5,9 +5,10 @@ const xlsxStyle = require('xlsx-style');
 
 const puppeteer = require('puppeteer-extra');
 const StealthPlugin = require('puppeteer-extra-plugin-stealth');
-puppeteer.use(StealthPlugin());
 
 const { generateDates, calculateColumnWidths, mergeTablesSideBySide, parseDate, getDate59DaysBefore, getPrevDay, getNextDay } = require('./helpers');
+
+puppeteer.use(StealthPlugin());
 
 // Prompts
 const rl = readline.createInterface({
@@ -29,8 +30,9 @@ async function makeExcel (startDate, endDate) {
     
     // Tworzenie nowego excela
     const wb = xlsx.utils.book_new();
-    
-    const browser = await puppeteer.launch({ headless: true });
+
+    // Otwieranie przeglądarki
+    const browser = await puppeteer.launch({headless: true});
     const page = await browser.newPage();
     
     // do zbierania danych
