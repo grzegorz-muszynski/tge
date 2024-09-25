@@ -44,7 +44,7 @@ function parseDate(dateStr) {
 // Funkcja sprawdzająca dzisiejszy dzień i zwracająca datę 60 dni wcześniej - pierwszy dzień z danymi na stronie
 function getDate59DaysBefore() {
     const currentDate = new Date();
-    currentDate.setDate(currentDate.getDate() - 60);
+    currentDate.setDate(currentDate.getDate() - 59);
 
     const day = String(currentDate.getDate()).padStart(2, '0');
     const month = String(currentDate.getMonth() + 1).padStart(2, '0');
