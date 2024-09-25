@@ -180,7 +180,7 @@ function askDate(question, callback) {
     });
 }
 
-askDate(`Wprowadź do terminala datę początkową w formacie DD-MM-YYYY, np.: 01-01-2024. Nie może być wcześniejsza niż ${earliestDate}: `, (startDate) => {
+askDate(`Wprowadź do terminala datę początkową w formacie DD-MM-RRRR, np.: "01-01-2024". Nie może być wcześniejsza niż ${earliestDate}: `, (startDate) => {
     const parsedStartDate = parseDate(startDate);
     const parsedEarliestDate = parseDate(earliestDate);
 
