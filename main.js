@@ -5,6 +5,7 @@ const xlsxStyle = require('xlsx-style');
 
 const puppeteer = require('puppeteer-extra');
 const StealthPlugin = require('puppeteer-extra-plugin-stealth');
+const chromium = require('puppeteer');
 
 const { generateDates, calculateColumnWidths, mergeTablesSideBySide, parseDate, getDate59DaysBefore, getPrevDay, getNextDay } = require('./helpers');
 
@@ -32,7 +33,10 @@ async function makeExcel (startDate, endDate) {
     const wb = xlsx.utils.book_new();
 
     // Otwieranie przeglądarki
-    const browser = await puppeteer.launch({headless: true});
+    const browser = await puppeteer.launch({
+        headless: true,
+        executablePath: chromium.executablePath()
+    });
     const page = await browser.newPage();
     
     // do zbierania danych
