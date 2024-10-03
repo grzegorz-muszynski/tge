@@ -27,8 +27,6 @@ async function makeExcel (startDate, endDate) {
 
     const dates = await generateDates(startDate, endDate);
     
-    // console.log('Pobieranie danych dla dat: ', dates);
-    
     // Tworzenie nowego excela
     const wb = xlsx.utils.book_new();
 
