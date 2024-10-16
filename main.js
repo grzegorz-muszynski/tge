@@ -46,11 +46,8 @@ async function makeExcel (startDate, endDate) {
     // Pokazywanie komunikatów z przeglądarki w konsoli
     // page.on('console', msg => console.log('PAGE LOG:', msg.text()));
     
-    // Tworzenie arkusza dla każdej daty
+    // Spisywanie danych data po dacie
     for (const date of dates) {
-        console.log(date);
-        // for (let i = 0; i < dates.length - 1; i++) {
-    //     const date = dates[i];
         const prevDate = getPrevDay(date);
         
         // otwieranie strony
@@ -59,47 +56,33 @@ async function makeExcel (startDate, endDate) {
         await page.waitForSelector('.footable.table.table-hover.table-padding');
         
         // Pobieranie danych z tabeli
-        const tableData = await page.evaluate((dateNumber) => {
+        const tableData = await page.evaluate((date) => {
             const table = document.querySelector('.footable.table.table-hover.table-padding'); 
             const allRows = Array.from(table.querySelectorAll('tr'));
             
+            // W każdym wierszu wycinamy dwie pierwsze komórki z z godziną i ceną)
             return allRows.map(row => {
-                if (dateNumber < 1) {
-                    cells = Array.from(row.querySelectorAll('td, th')).slice(0, 2);
-                } else {
-                    cells = Array.from(row.querySelectorAll('td, th')).slice(1, 2);
-                }
+                cells = Array.from(row.querySelectorAll('td, th')).slice(0, 2);
+                // console.log(cells); // Nie działa wewnątrz page.evaulate
+
+                cells[0].innerText = cells[0].innerText + '  w dniu ' + date + ' r.';
                 
                 return cells.map(cell => cell.innerText.trim());
             });
-        }, dateNumber);
+        }, date);
         
-        
-        // Pominięcie dwóch pierwszych wierszy (z nagłówkami) przy kolejnych iteracjach
-        // const dataRows = isFirstIteration ? tableData.slice(0, -3) : tableData.slice(2, -3);
+        // Pominięcie dwóch pierwszych wierszy (z nagłówkami)
         const dataRows = tableData.slice(2, -3);
-        
-        // przerabianie daty o jeden dzień na przód i dodawanie w tej formie do każdej kolumny z wyjątkiem pierwszej (tej z godzinami)
-        // const nextDayDate = getNextDay(date);
-        if (isFirstIteration) {
-            dataRows.unshift(['', date]);
-        } else {   
-            dataRows.unshift([date]);
-        }
 
         // dodawanie nagłówków w dwóch pierwszych wierszach
         if (dateNumber === 0) {
             dataRows.splice(0, 0, ['FIXING I']);
             dataRows.splice(0, 0, ['Kurs (PLN/MWh)']);
-        } else {
-            dataRows.splice(0, 0, ['']);
-            dataRows.splice(0, 0, ['']);
-        }
+        } 
         
-        const tableDataWithDate = dataRows; 
-        
-        // allDataTable = allDataTable.concat(tableDataWithDate);
-        allDataTable = mergeTablesSideBySide(allDataTable, tableDataWithDate);
+        const tableDataWithDate = dataRows;
+
+        allDataTable = allDataTable.concat(tableDataWithDate);
         isFirstIteration = false;
         dateNumber = dateNumber + 1;
     }
@@ -108,28 +91,13 @@ async function makeExcel (startDate, endDate) {
 
     // Stylowanie
     const boldStyle = { font: { bold: true } };
+
+    console.log(allDataTable.length);
     
     // Pogrubianie tekstu w pierwszej kolumnie
-    for (let i = 1; i < 28; i++) {
+    for (let i = 1; i < allDataTable.length + 1; i++) {
         ws['A' + i].s = boldStyle;
     }
-    
-    // Pogrubianie dat
-    function numberToLetters(num) {
-        let letters = '';
-        while (num >= 0) {
-            letters = String.fromCharCode((num % 26) + 65) + letters;
-            num = Math.floor(num / 26) - 1;
-        }
-        return letters;
-    }
-    
-    const iterations = dates.length; // Set the number of iterations you need
-
-    for (let i = 1; i < iterations + 1; i++) {
-        ws[numberToLetters(i) + '3'].s = boldStyle;
-    }
-
     
     // Wyliczanie szerokości kolumn
     const colWidths = calculateColumnWidths(allDataTable);
@@ -138,12 +106,6 @@ async function makeExcel (startDate, endDate) {
     // const colWidths = [
     //     { wch: 12},
     //     { wch: 16},
-    //     { wch: 16},
-    //     { wch: 16},
-    //     { wch: 16},
-    //     { wch: 16},
-    //     { wch: 16},
-    //     { wch: 16}
     // ]
 
     ws['!cols'] = colWidths;
