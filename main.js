@@ -48,6 +48,8 @@ async function makeExcel (startDate, endDate) {
     
     // Spisywanie danych data po dacie
     for (const date of dates) {
+        console.log(date);
+
         const prevDate = getPrevDay(date);
         
         // otwieranie strony
@@ -91,8 +93,6 @@ async function makeExcel (startDate, endDate) {
 
     // Stylowanie
     const boldStyle = { font: { bold: true } };
-
-    console.log(allDataTable.length);
     
     // Pogrubianie tekstu w pierwszej kolumnie
     for (let i = 1; i < allDataTable.length + 1; i++) {
