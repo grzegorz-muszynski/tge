@@ -45,6 +45,23 @@ async function makeExcel(startDate, endDate) {
     }
     
     const ws = xlsx.utils.aoa_to_sheet(allDataTable);
+    
+    // Stylowanie: pogrubienie pierwszej kolumny i pierwszego wiersza
+    const boldStyle = { font: { bold: true } };
+    const rightAlignStyle = { alignment: { horizontal: "right" } };
+    
+    allDataTable.forEach((row, rowIndex) => {
+        row.forEach((_, colIndex) => {
+            const cellRef = xlsx.utils.encode_cell({ r: rowIndex, c: colIndex });
+            if (!ws[cellRef]) return;
+            if (rowIndex === 0 || colIndex === 0) {
+                ws[cellRef].s = boldStyle;
+            } else {
+                ws[cellRef].s = rightAlignStyle;
+            }
+        });
+    });
+    
     xlsx.utils.book_append_sheet(wb, ws, 'Dane');
     await browser.close();
     xlsxStyle.writeFile(wb, 'tabela.xlsx');
